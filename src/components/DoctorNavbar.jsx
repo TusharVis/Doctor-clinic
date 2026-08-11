@@ -15,8 +15,15 @@ import {
 import { NavLink } from "react-router-dom";
 
 function DoctorNavbar() {
-  const [mobileOpen, setMobileOpen] =
-    useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  // =====================================================
+  // API URL
+  // =====================================================
+
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:5000";
 
   // =====================================================
   // GET DOCTOR DATA
@@ -31,14 +38,10 @@ function DoctorNavbar() {
   // =====================================================
 
   const logout = () => {
-    localStorage.removeItem(
-      "doctorToken"
-    );
-
+    localStorage.removeItem("doctorToken");
     localStorage.removeItem("doctor");
 
-    window.location.href =
-      "/doctor-login";
+    window.location.href = "/doctor-login";
   };
 
   // =====================================================
@@ -50,22 +53,23 @@ function DoctorNavbar() {
       return "";
     }
 
+    // If backend already saved a complete URL
     if (
-      doctor.profileImage.startsWith(
-        "http://"
-      ) ||
-      doctor.profileImage.startsWith(
-        "https://"
-      )
+      doctor.profileImage.startsWith("http://") ||
+      doctor.profileImage.startsWith("https://")
     ) {
       return doctor.profileImage;
     }
 
-    return `http://localhost:5000${doctor.profileImage}`;
+    // Remove accidental leading slash handling issues
+    const imagePath = doctor.profileImage.startsWith("/")
+      ? doctor.profileImage
+      : `/${doctor.profileImage}`;
+
+    return `${API_URL}${imagePath}`;
   };
 
-  const profileImage =
-    getProfileImage();
+  const profileImage = getProfileImage();
 
   // =====================================================
   // DOCTOR INFORMATION
@@ -144,6 +148,9 @@ function DoctorNavbar() {
             <img
               src={profileImage}
               alt={doctorName}
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+              }}
               className="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-sky-100"
             />
           ) : (
@@ -171,7 +178,6 @@ function DoctorNavbar() {
           </div>
 
         </NavLink>
-
 
         {/* =================================================
             DESKTOP NAVIGATION
@@ -205,7 +211,6 @@ function DoctorNavbar() {
 
         </nav>
 
-
         {/* =================================================
             LOGOUT
         ================================================= */}
@@ -231,7 +236,6 @@ function DoctorNavbar() {
 
       </div>
 
-
       {/* =================================================
           MOBILE NAVBAR
       ================================================= */}
@@ -244,9 +248,7 @@ function DoctorNavbar() {
 
         <NavLink
           to="/doctor-profile"
-          onClick={() =>
-            setMobileOpen(false)
-          }
+          onClick={() => setMobileOpen(false)}
           className="flex items-center gap-3 rounded-xl px-1 py-1 transition hover:bg-slate-50"
         >
 
@@ -256,6 +258,9 @@ function DoctorNavbar() {
             <img
               src={profileImage}
               alt={doctorName}
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+              }}
               className="h-12 w-12 rounded-full object-cover ring-2 ring-sky-100"
             />
           ) : (
@@ -284,7 +289,6 @@ function DoctorNavbar() {
 
         </NavLink>
 
-
         {/* =================================================
             MOBILE MENU BUTTON
         ================================================= */}
@@ -292,9 +296,7 @@ function DoctorNavbar() {
         <button
           type="button"
           onClick={() =>
-            setMobileOpen(
-              !mobileOpen
-            )
+            setMobileOpen(!mobileOpen)
           }
           className="rounded-xl bg-slate-100 p-3 text-lg text-slate-700 transition hover:bg-slate-200"
           aria-label="Toggle menu"
@@ -309,7 +311,6 @@ function DoctorNavbar() {
         </button>
 
       </div>
-
 
       {/* =================================================
           MOBILE MENU
@@ -346,7 +347,6 @@ function DoctorNavbar() {
 
               </NavLink>
             ))}
-
 
             {/* =================================================
                 MOBILE LOGOUT
