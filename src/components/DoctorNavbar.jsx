@@ -23,7 +23,9 @@ function DoctorNavbar() {
 
   const API_URL =
     import.meta.env.VITE_API_URL ||
-    "http://localhost:5000";
+    (window.location.hostname === "localhost"
+      ? "http://localhost:5000"
+      : "https://doctor-clinic-8073.onrender.com");
 
   // =====================================================
   // GET DOCTOR DATA
@@ -53,18 +55,47 @@ function DoctorNavbar() {
       return "";
     }
 
-    // If backend already saved a complete URL
+    let imagePath = doctor.profileImage;
+
+    // -----------------------------------------------------
+    // OLD LOCALHOST URL
+    // -----------------------------------------------------
+    // If the doctor data was saved earlier while running
+    // locally, it may contain:
+    //
+    // http://localhost:5000/uploads/...
+    //
+    // Replace localhost with the deployed backend.
+    // -----------------------------------------------------
+
     if (
-      doctor.profileImage.startsWith("http://") ||
-      doctor.profileImage.startsWith("https://")
+      imagePath.startsWith(
+        "http://localhost:5000"
+      )
     ) {
-      return doctor.profileImage;
+      imagePath = imagePath.replace(
+        "http://localhost:5000",
+        API_URL
+      );
     }
 
-    // Remove accidental leading slash handling issues
-    const imagePath = doctor.profileImage.startsWith("/")
-      ? doctor.profileImage
-      : `/${doctor.profileImage}`;
+    // -----------------------------------------------------
+    // OTHER COMPLETE URL
+    // -----------------------------------------------------
+
+    if (
+      imagePath.startsWith("https://")
+    ) {
+      return imagePath;
+    }
+
+    // -----------------------------------------------------
+    // RELATIVE IMAGE PATH
+    // -----------------------------------------------------
+
+    if (!imagePath.startsWith("/")) {
+      imagePath = `/${imagePath}`;
+    }
 
     return `${API_URL}${imagePath}`;
   };
@@ -148,8 +179,9 @@ function DoctorNavbar() {
             <img
               src={profileImage}
               alt={doctorName}
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
+              onError={(event) => {
+                event.currentTarget.style.display =
+                  "none";
               }}
               className="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-sky-100"
             />
@@ -248,7 +280,9 @@ function DoctorNavbar() {
 
         <NavLink
           to="/doctor-profile"
-          onClick={() => setMobileOpen(false)}
+          onClick={() =>
+            setMobileOpen(false)
+          }
           className="flex items-center gap-3 rounded-xl px-1 py-1 transition hover:bg-slate-50"
         >
 
@@ -258,8 +292,9 @@ function DoctorNavbar() {
             <img
               src={profileImage}
               alt={doctorName}
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
+              onError={(event) => {
+                event.currentTarget.style.display =
+                  "none";
               }}
               className="h-12 w-12 rounded-full object-cover ring-2 ring-sky-100"
             />
